@@ -40,3 +40,49 @@ while True:
     if 'exit' in query:
         break
     main_logic(query)
+import speech_recognition as sr
+import pyttsx3
+import google.generativeai as genai
+import webbrowser
+
+# 1. API Setup (Yahan apni API Key daal dena)
+genai.configure(api_key="YOUR_API_KEY_HERE")
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+# 2. Voice Setup
+engine = pyttsx3.init()
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+
+# 3. Listening Setup
+def take_command():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source)
+    try:
+        query = r.recognize_google(audio, language='en-in')
+        return query.lower()
+    except:
+        return ""
+
+# 4. Main Logic
+speak("Jarvis online. Namaste Amit, kya chal raha hai?")
+
+while True:
+    query = take_command()
+    
+    if "exit" in query:
+        speak("Thik hai Amit, main offline ho raha hoon.")
+        break
+        
+    elif "open amazon" in query:
+        webbrowser.open("https://sellercentral.amazon.in/")
+        speak("Amazon Seller Central khol raha hoon.")
+        
+    elif query: # Agar koi sawal pucha
+        speak("Ek second, soch raha hoon...")
+        response = model.generate_content(query)
+        speak(response.text)
